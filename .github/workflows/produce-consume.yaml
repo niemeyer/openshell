@@ -1,0 +1,36 @@
+name: Produce and Consume (Reusable)
+on:
+  workflow_call:
+    inputs:
+      color:
+        required: true
+        type: string
+
+jobs:
+  produce-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Define Color
+        env:
+          color: ${{ inputs.color }}
+        run: |
+          echo "$color" > color
+      
+      - name: Produce Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.color }}
+          path: color
+
+  consume-artifact:
+    runs-on: ubuntu-latest
+    needs: produce-artifact
+    steps:
+      - name: Retrieve Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.color }}
+
+      - name: Report Color
+        run: |
+          cat color
